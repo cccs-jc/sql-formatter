@@ -44,21 +44,22 @@ describe('SparkSqlFormatter', () => {
 
   it('formats array_sort with lambda like function', () => {
     const result = format(
-      `select array_sort(array('bc', 'ab', 'dc'), (left, right) -> case when left is null and right is null then 0 when left is null then -1 when right is null then 1 when left < right then 1 when left > right then -1 else 0 end);`
+      `select array_sort(array('bc', 'ab', 'dc'), (left, right) -> case when left is null and right is null then 0 when left is null then -1 when right is null then 1 when left < right then 1 when left > right then -1 else 0 end);`,
+      {'uppercase': true}
     );
     expect(result).toBe(dedent`
-    select
+    SELECT
       array_sort(
         array('bc', 'ab', 'dc'),
-        (left, right) -> case
-          when left is null
-          and right is null then 0
-          when left is null then -1
-          when right is null then 1
-          when left < right then 1
-          when left > right then -1
-          else 0
-        end
+        (left, right) -> CASE
+          WHEN left IS NULL
+          AND right IS NULL THEN 0
+          WHEN left IS NULL THEN -1
+          WHEN right IS NULL THEN 1
+          WHEN left < right THEN 1
+          WHEN left > right THEN -1
+          ELSE 0
+        END
       );
     `);
   });
@@ -121,6 +122,18 @@ describe('SparkSqlFormatter', () => {
       SELECT
         'var one',
         'var two';
+    `);
+  });
+
+  // eslint-disable-next-line no-template-curly-in-string
+  it('test', () => {
+    // eslint-disable-next-line no-template-curly-in-string
+    const result = format('SELECT coalesce(a, b) FROM tab1', {'uppercase': true});
+    expect(result).toBe(dedent`
+      SELECT
+        coalesce(a, b)
+      FROM
+        tab1
     `);
   });
 });
